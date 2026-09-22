@@ -51,6 +51,26 @@ describe('KanbanBoard', () => {
   })
 })
 
+describe('TaskCard 快捷改优先级', () => {
+  it('点击优先级下拉发出带 patch 的 edit 事件（不打开编辑详情）', async () => {
+    const { mount } = await import('@vue/test-utils')
+    const TaskCard = (await import('../components/TaskCard.vue')).default
+    const task = makeTask({ priority: 'medium' })
+    const wrapper = mount(TaskCard, {
+      props: { task },
+      global: { stubs: { Teleport: true } },
+    })
+    const select = wrapper.find('select[aria-label="优先级"]')
+    await select.setValue('high')
+    expect(select.element.value).toBe('high')
+    const emitted = wrapper.emitted('edit')
+    expect(emitted).toBeTruthy()
+    expect(emitted[0][0]).toEqual({ task, patch: { priority: 'high' } })
+    // 语义上快捷改优先级应直接更新，而不是打开编辑弹窗
+    expect(wrapper.emitted('openEdit')).toBeFalsy()
+  })
+})
+
 describe('TaskForm', () => {
   it('标题为空时阻止保存并提示', async () => {
     const wrapper = mount(TaskForm, {

@@ -31,6 +31,10 @@ function toggleTheme() {
 }
 
 function handleEdit(payload) {
+  if (payload.patch) {
+    updateTask(payload.task.id, payload.patch)
+    return
+  }
   if (payload.task) {
     editing.value = { task: payload.task }
   } else {
