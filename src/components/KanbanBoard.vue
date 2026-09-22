@@ -7,6 +7,7 @@ const props = defineProps({
   status: { type: String, required: true },
   tasks: { type: Array, required: true },
   dragOver: { type: Boolean, default: false },
+  draggingId: { type: String, default: null },
 })
 
 const emit = defineEmits(['edit', 'delete', 'dragstart', 'dragend', 'dragover', 'dragleave', 'drop'])
@@ -19,7 +20,7 @@ const headerStyles = {
 
 const columnClass = computed(() =>
   [
-    'flex min-h-[320px] w-full flex-1 flex-col gap-3 rounded-xl border p-3 transition',
+    'flex min-h-[320px] min-w-0 w-full flex-1 flex-col gap-3 rounded-xl border p-3 transition',
     'border-gray-200 bg-gray-50 dark:border-gray-700/70 dark:bg-gray-800/40',
     props.dragOver ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-400/70 dark:bg-indigo-500/15' : '',
   ].join(' '),
@@ -34,15 +35,18 @@ function onDrop(event) {
     emit('drop', { id, status: props.status })
   }
 }
+
+function onDragLeave(event) {
+  if (!event.currentTarget.contains(event.relatedTarget)) emit('dragleave', props.status)
+}
 </script>
 
 <template>
   <section
     :class="columnClass"
-    role="list"
     :aria-label="STATUS_LABELS[status]"
     @dragover.prevent="emit('dragover', status)"
-    @dragleave="emit('dragleave', status)"
+    @dragleave="onDragLeave"
     @drop.prevent="onDrop"
   >
     <header class="flex items-center justify-between px-1">
@@ -67,11 +71,16 @@ function onDrop(event) {
         v-for="task in tasks"
         :key="task.id"
         :task="task"
+        :dragging="draggingId === task.id"
         @edit="emit('edit', $event)"
         @delete="emit('delete', $event)"
         @dragstart="emit('dragstart', $event)"
         @dragend="emit('dragend')"
       />
+
+      <p v-if="tasks.length === 0" class="py-8 text-center text-sm text-gray-400 dark:text-gray-500">
+        暂无任务，可以添加或拖入任务
+      </p>
 
       <button
         type="button"

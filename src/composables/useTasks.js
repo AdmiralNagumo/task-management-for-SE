@@ -1,11 +1,13 @@
 import { ref, watch } from 'vue'
-import { createTask, parseTasks } from '../utils/task'
+import { createTask, normalizeTaskFields, parseTasks } from '../utils/task'
 
 const STORAGE_KEY = 'task-management:data'
+let shouldSeedDemo = false
 
 function loadTasks() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
+    shouldSeedDemo = raw === null
     return raw ? parseTasks(JSON.parse(raw)) : []
   } catch (error) {
     console.warn('读取本地数据失败，已重置', error)
@@ -45,13 +47,18 @@ export function useTasks() {
   function updateTask(id, patch) {
     const task = tasks.value.find((item) => item.id === id)
     if (!task) return null
+    const fields = { ...task }
     for (const key of ['title', 'description', 'priority', 'status']) {
       if (key in patch && patch[key] !== undefined) {
-        task[key] = patch[key]
+        fields[key] = patch[key]
       }
     }
-    task.updatedAt = Date.now()
-    return task
+    // 先完整校验，再一次性替换，避免部分更新及重复写入存储。
+    const normalized = normalizeTaskFields(fields)
+    if (Object.keys(normalized).every((key) => task[key] === normalized[key])) return task
+    const updated = { ...task, ...normalized, updatedAt: Date.now() }
+    tasks.value.splice(tasks.value.indexOf(task), 1, updated)
+    return updated
   }
 
   function moveTask(id, status) {
@@ -63,7 +70,8 @@ export function useTasks() {
   }
 
   function seedDemoData() {
-    if (tasks.value.length > 0) return
+    if (!shouldSeedDemo || tasks.value.length > 0) return
+    shouldSeedDemo = false
     const now = Date.now()
     const demo = [
       createTask({

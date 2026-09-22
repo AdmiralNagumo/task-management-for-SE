@@ -19,7 +19,7 @@ const priorityBorder = {
 
 const cardClass = computed(() =>
   [
-    'group rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition',
+    'group break-words rounded-lg border border-l-4 border-gray-200 bg-white p-3 shadow-sm transition',
     'hover:shadow-md hover:-translate-y-0.5',
     'dark:border-gray-700/80 dark:bg-gray-800/80',
     priorityBorder[props.task.priority],
@@ -29,6 +29,7 @@ const cardClass = computed(() =>
 )
 
 function onDragStart(event) {
+  if (!event.dataTransfer) return
   emit('dragstart', props.task.id)
   event.dataTransfer.effectAllowed = 'move'
   try {
@@ -56,13 +57,13 @@ function toggleMenu() {
     @click="menuOpen = false"
   >
     <div class="flex items-start justify-between gap-2">
-      <div class="flex-1">
+      <div class="min-w-0 flex-1">
         <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ task.title }}</p>
         <p v-if="task.description" class="mt-1 whitespace-pre-wrap text-xs text-gray-500 dark:text-gray-400">
           {{ task.description }}
         </p>
       </div>
-      <div class="flex items-center gap-1">
+      <div class="flex shrink-0 items-center gap-1">
         <PriorityBadge :model-value="task.priority" @update:model-value="emit('edit', { task, patch: { priority: $event } })" />
         <div class="relative">
           <button
@@ -70,6 +71,7 @@ function toggleMenu() {
             class="flex h-6 w-6 items-center justify-center rounded text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700/70 dark:hover:text-gray-200"
             title="更多操作"
             aria-label="更多操作"
+            :aria-expanded="menuOpen"
             @click.stop="toggleMenu"
           >
             <span class="text-base leading-none">⋯</span>
@@ -78,18 +80,19 @@ function toggleMenu() {
             v-if="menuOpen"
             class="absolute right-0 top-7 z-10 w-32 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-600/70 dark:bg-gray-800 dark:shadow-black/40"
             @click.stop
+            @keydown.esc.stop="menuOpen = false"
           >
             <button
               type="button"
               class="block w-full px-3 py-1.5 text-left text-sm text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700/70"
-              @click="emit('edit', { task })"
+              @click="menuOpen = false; emit('edit', { task })"
             >
               编辑
             </button>
             <button
               type="button"
               class="block w-full px-3 py-1.5 text-left text-sm text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
-              @click="emit('delete', task)"
+              @click="menuOpen = false; emit('delete', task)"
             >
               删除
             </button>

@@ -1,6 +1,7 @@
 <script setup>
-import { ref, nextTick } from 'vue'
-import { PRIORITIES, PRIORITY_LABELS, STATUS_LABELS, STATUSES } from '../utils/constants'
+import { ref, onMounted } from 'vue'
+import { PRIORITY_LABELS, STATUS_LABELS, STATUSES } from '../utils/constants'
+import { normalizeTaskFields } from '../utils/task'
 import PriorityBadge from './PriorityBadge.vue'
 
 const props = defineProps({
@@ -16,14 +17,18 @@ const form = ref({
   status: props.initial.status,
 })
 const error = ref('')
+const titleInput = ref(null)
+onMounted(() => titleInput.value?.focus())
 
-async function submit() {
-  const title = form.value.title.trim()
-  if (!title) {
-    error.value = '标题不能为空'
-    return
+function submit() {
+  error.value = ''
+  try {
+    const fields = normalizeTaskFields(form.value)
+    emit('save', fields)
+  } catch (failure) {
+    error.value = failure.message
+    titleInput.value?.focus()
   }
-  emit('save', { ...form.value, title })
 }
 
 function cancel() {
@@ -32,16 +37,19 @@ function cancel() {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
+  <form class="flex flex-col gap-3" @submit.prevent="submit">
     <div>
       <label for="task-title" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">标题 *</label>
       <input
         id="task-title"
+        ref="titleInput"
         v-model="form.title"
         type="text"
         placeholder="任务标题"
         class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:focus:ring-indigo-500/40"
-        @keyup.enter="submit"
+        :aria-invalid="!!error"
+        :aria-describedby="error ? 'task-form-error' : undefined"
+        @input="error = ''"
       />
     </div>
 
@@ -67,8 +75,9 @@ function cancel() {
         </div>
       </div>
       <div class="flex-1">
-        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">状态</label>
+        <label for="task-status" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">状态</label>
         <select
+          id="task-status"
           v-model="form.status"
           class="w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 outline-none dark:border-gray-600/70 dark:bg-gray-900 dark:text-gray-100"
         >
@@ -79,7 +88,7 @@ function cancel() {
       </div>
     </div>
 
-    <p v-if="error" class="text-sm text-red-600 dark:text-red-400" role="alert">{{ error }}</p>
+    <p v-if="error" id="task-form-error" class="text-sm text-red-600 dark:text-red-400" role="alert">{{ error }}</p>
 
     <div class="flex justify-end gap-2">
       <button
@@ -90,12 +99,11 @@ function cancel() {
         取消
       </button>
       <button
-        type="button"
+        type="submit"
         class="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500"
-        @click="submit"
       >
         保存
       </button>
     </div>
-  </div>
+  </form>
 </template>

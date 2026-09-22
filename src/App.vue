@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { useTasks } from './composables/useTasks'
 import { STATUSES } from './utils/constants'
 import KanbanBoard from './components/KanbanBoard.vue'
@@ -11,6 +11,9 @@ const dragOverStatus = ref('')
 const draggingId = ref(null)
 const editing = ref(null) // { task } 或 { status, task: null }，task:null 表示新建
 const modalOpen = ref(false)
+const dialog = ref(null)
+const saveError = ref('')
+let previousFocus = null
 
 const isDark = ref(false)
 const THEME_KEY = 'task-management:theme'
@@ -40,26 +43,48 @@ function handleEdit(payload) {
   } else {
     editing.value = { status: payload.status, task: null }
   }
+  previousFocus = document.activeElement?.closest('article')?.querySelector('button[aria-label="更多操作"]') || document.activeElement
+  saveError.value = ''
   modalOpen.value = true
 }
 
 function handleSave(payload) {
-  if (editing.value && editing.value.task) {
-    updateTask(editing.value.task.id, {
-      title: payload.title,
-      description: payload.description,
-      priority: payload.priority,
-      status: payload.status,
-    })
-  } else {
-    addTask(payload)
+  try {
+    if (editing.value && editing.value.task) {
+      updateTask(editing.value.task.id, payload)
+    } else {
+      addTask(payload)
+    }
+    closeModal()
+  } catch (error) {
+    saveError.value = error.message || '保存失败，请重试'
   }
-  closeModal()
 }
 
 function closeModal() {
   modalOpen.value = false
   editing.value = null
+  saveError.value = ''
+  nextTick(() => previousFocus?.focus())
+}
+
+function handleDialogKeydown(event) {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeModal()
+  }
+  if (event.key !== 'Tab') return
+  const controls = dialog.value?.querySelectorAll('button, input, textarea, select, [tabindex="0"]')
+  if (!controls?.length) return
+  const first = controls[0]
+  const last = controls[controls.length - 1]
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault()
+    last.focus()
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault()
+    first.focus()
+  }
 }
 
 function handleDelete(task) {
@@ -87,8 +112,13 @@ function handleDrop({ id, status }) {
 }
 
 onMounted(() => {
-  const saved = localStorage.getItem(THEME_KEY)
-  applyTheme(saved === 'dark' || (saved === null && window.matchMedia?.('(prefers-color-scheme: dark)').matches))
+  let saved = null
+  try {
+    saved = localStorage.getItem(THEME_KEY)
+  } catch (error) {
+    console.warn('读取主题失败', error)
+  }
+  applyTheme(saved === 'dark' || (saved !== 'light' && !!window.matchMedia?.('(prefers-color-scheme: dark)').matches))
   seedDemoData()
 })
 </script>
@@ -113,18 +143,20 @@ onMounted(() => {
       </div>
     </header>
 
-    <main class="mx-auto flex max-w-7xl flex-col items-start gap-4 px-4 py-6 sm:px-6">
+    <main class="mx-auto grid max-w-7xl grid-cols-1 items-start gap-4 px-4 py-6 sm:px-6 lg:grid-cols-3">
       <KanbanBoard
         v-for="status in STATUSES"
         :key="status"
         :status="status"
         :tasks="tasksByStatus(status)"
-        :drag-over="dragOverStatus === status && draggingId"
+        :drag-over="dragOverStatus === status && draggingId !== null"
+        :dragging-id="draggingId"
         @edit="handleEdit"
         @delete="handleDelete"
         @dragstart="handleDragStart"
         @dragend="handleDragEnd"
         @dragover="handleDragOver"
+        @dragleave="dragOverStatus === $event && (dragOverStatus = '')"
         @drop="handleDrop"
       />
     </main>
@@ -134,9 +166,10 @@ onMounted(() => {
         v-if="modalOpen"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
         @click.self="closeModal"
+        @keydown="handleDialogKeydown"
       >
-        <div class="w-full max-w-md rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900 dark:ring-1 dark:ring-gray-700/60">
-          <h2 class="mb-4 text-base font-semibold">
+        <div ref="dialog" role="dialog" aria-modal="true" aria-labelledby="task-dialog-title" class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-5 text-gray-900 shadow-xl dark:bg-gray-900 dark:text-gray-100 dark:ring-1 dark:ring-gray-700/60">
+          <h2 id="task-dialog-title" class="mb-4 text-base font-semibold">
             {{ editing && editing.task ? '编辑任务' : '新建任务' }}
           </h2>
           <TaskForm
@@ -145,11 +178,12 @@ onMounted(() => {
               title: editing.task ? editing.task.title : '',
               description: editing.task ? editing.task.description : '',
               priority: editing.task ? editing.task.priority : 'medium',
-              status: editing.status || 'todo',
+              status: editing.task ? editing.task.status : editing.status || 'todo',
             }"
             @save="handleSave"
             @cancel="closeModal"
           />
+          <p v-if="saveError" class="mt-3 text-sm text-red-600 dark:text-red-400" role="alert">{{ saveError }}</p>
         </div>
       </div>
     </Teleport>
