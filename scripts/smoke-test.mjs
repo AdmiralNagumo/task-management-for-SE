@@ -126,10 +126,13 @@ try {
   await sleep(250)
   const modalVisible = await page.evaluate(() => !!document.querySelector('.fixed'))
   if (modalVisible) throw new Error('快捷改优先级不应打开编辑弹窗')
-  // 同一下拉框三个选项三种颜色：红、黄、绿
+  // 同一下拉框三个选项：从上到下 红-高、黄-中、绿-低，字体与背景均为对应颜色
   const joined = priorities.options.join(' ')
-  if (!(joined.includes('text-red') && joined.includes('text-yellow') && joined.includes('text-green'))) {
-    throw new Error('下拉选项应包含红黄绿三种颜色: ' + joined)
+  if (!(joined.includes('bg-red-200') && joined.includes('bg-yellow-200') && joined.includes('bg-green-200'))) {
+    throw new Error('下拉选项应包含红黄绿三种背景色: ' + joined)
+  }
+  if (!(joined.includes('text-red-900') && joined.includes('text-yellow-900') && joined.includes('text-green-900'))) {
+    throw new Error('下拉选项应包含红黄绿三种字体色: ' + joined)
   }
   const demoCardAfter = await page.evaluate(() => {
     const section = [...document.querySelectorAll('section[aria-label="待办"]')][0]

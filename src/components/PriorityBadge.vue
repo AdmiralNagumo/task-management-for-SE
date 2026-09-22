@@ -14,11 +14,11 @@ const styles = {
   low: 'bg-green-100 text-green-800 ring-green-300 dark:bg-green-500/15 dark:text-green-300 dark:ring-green-500/30',
 }
 
-// 下拉选项本身也使用对应颜色：高=红、中=黄、低=绿
+// 下拉选项：从上到下依次为 红-高、黄-中、绿-低，字体与背景均使用对应颜色
 const optionStyles = {
-  high: 'text-red-700 dark:text-red-300',
-  medium: 'text-yellow-700 dark:text-yellow-300',
-  low: 'text-green-700 dark:text-green-300',
+  high: 'bg-red-200 text-red-900 dark:bg-red-500/25 dark:text-red-200',
+  medium: 'bg-yellow-200 text-yellow-900 dark:bg-yellow-500/25 dark:text-yellow-200',
+  low: 'bg-green-200 text-green-900 dark:bg-green-500/25 dark:text-green-200',
 }
 
 const selectClass = computed(

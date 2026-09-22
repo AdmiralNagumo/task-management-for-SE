@@ -58,9 +58,15 @@ describe('PriorityBadge 下拉选项颜色', () => {
     const options = wrapper.findAll('option')
     expect(options).toHaveLength(3)
     const classes = options.map((option) => option.classes())
-    expect(classes[0]).toEqual(expect.arrayContaining(['text-red-700']))
-    expect(classes[1]).toEqual(expect.arrayContaining(['text-yellow-700']))
-    expect(classes[2]).toEqual(expect.arrayContaining(['text-green-700']))
+    // 高-红：字体与背景均为红色系
+    expect(classes[0]).toEqual(expect.arrayContaining(['text-red-900']))
+    expect(classes[0]).toEqual(expect.arrayContaining(['bg-red-200']))
+    // 中-黄：字体与背景均为黄色系
+    expect(classes[1]).toEqual(expect.arrayContaining(['text-yellow-900']))
+    expect(classes[1]).toEqual(expect.arrayContaining(['bg-yellow-200']))
+    // 低-绿：字体与背景均为绿色系
+    expect(classes[2]).toEqual(expect.arrayContaining(['text-green-900']))
+    expect(classes[2]).toEqual(expect.arrayContaining(['bg-green-200']))
     const set = new Set(classes.map((c) => c.join(' ')))
     expect(set.size).toBe(3)
   })
