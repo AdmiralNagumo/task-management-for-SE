@@ -2,27 +2,14 @@
 import { computed } from 'vue'
 import { STATUS_LABELS } from '../utils/constants'
 import TaskCard from './TaskCard.vue'
-import TaskForm from './TaskForm.vue'
 
 const props = defineProps({
   status: { type: String, required: true },
   tasks: { type: Array, required: true },
   dragOver: { type: Boolean, default: false },
-  editingTask: { type: Object, default: null },
 })
 
-const emit = defineEmits([
-  'move',
-  'edit',
-  'delete',
-  'save',
-  'cancelEdit',
-  'dragstart',
-  'dragend',
-  'dragover',
-  'dragleave',
-  'drop',
-])
+const emit = defineEmits(['edit', 'delete', 'dragstart', 'dragend', 'dragover', 'dragleave', 'drop'])
 
 const headerStyles = {
   todo: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200',
@@ -46,14 +33,6 @@ function onDrop(event) {
   if (id) {
     emit('drop', { id, status: props.status })
   }
-}
-
-function onSave(payload) {
-  emit('save', payload)
-}
-
-function onCancel() {
-  emit('cancelEdit')
 }
 </script>
 
@@ -93,13 +72,6 @@ function onCancel() {
         @dragstart="emit('dragstart', $event)"
         @dragend="emit('dragend')"
       />
-
-      <div
-        v-if="editingTask && editingTask.status === status"
-        class="rounded-lg border border-indigo-200 bg-white p-3 shadow-sm dark:border-indigo-500/50 dark:bg-gray-800"
-      >
-        <TaskForm :initial="editingTask" @save="onSave" @cancel="onCancel" />
-      </div>
 
       <button
         type="button"

@@ -120,7 +120,6 @@ onMounted(() => {
         :status="status"
         :tasks="tasksByStatus(status)"
         :drag-over="dragOverStatus === status && draggingId"
-        :editing-task="editing && editing.task && editing.task.status === status ? editing.task : null"
         @edit="handleEdit"
         @delete="handleDelete"
         @dragstart="handleDragStart"

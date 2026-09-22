@@ -110,19 +110,27 @@ try {
   const persistedText = await page.$eval('section[aria-label="完成"]', (el) => el.textContent)
   if (!persistedText.includes('浏览器验证任务')) throw new Error('刷新后数据丢失')
 
-  // 6) 优先级快捷切换：不打开详情弹窗，UI 颜色立即变化并持久化
-  const demoCardBefore = await page.evaluate(() => {
+  // 6) 优先级快捷切换：不打开编辑弹窗，UI 颜色立即变化并持久化
+  await page.evaluate(() => localStorage.removeItem('task-management:data'))
+  await page.reload({ waitUntil: 'networkidle0' })
+  const priorities = await page.evaluate(() => {
     const section = [...document.querySelectorAll('section[aria-label="待办"]')][0]
     const card = [...section.querySelectorAll('article[draggable="true"]')][0]
     const select = card.querySelector('select[aria-label="优先级"]')
+    const options = [...select.querySelectorAll('option')].map((option) => option.className)
     const current = select.value
     select.value = current === 'low' ? 'high' : 'low'
     select.dispatchEvent(new Event('change', { bubbles: true }))
-    return { current }
+    return { current, options }
   })
   await sleep(250)
   const modalVisible = await page.evaluate(() => !!document.querySelector('.fixed'))
   if (modalVisible) throw new Error('快捷改优先级不应打开编辑弹窗')
+  // 同一下拉框三个选项三种颜色：红、黄、绿
+  const joined = priorities.options.join(' ')
+  if (!(joined.includes('text-red') && joined.includes('text-yellow') && joined.includes('text-green'))) {
+    throw new Error('下拉选项应包含红黄绿三种颜色: ' + joined)
+  }
   const demoCardAfter = await page.evaluate(() => {
     const section = [...document.querySelectorAll('section[aria-label="待办"]')][0]
     const card = [...section.querySelectorAll('article[draggable="true"]')][0]
@@ -132,7 +140,8 @@ try {
       badgeClass: card.querySelector('select[aria-label="优先级"]').className,
     }
   })
-  if (demoCardAfter.value === demoCardBefore.current) throw new Error('快捷改优先级后选中值未变化')
+  const demoCardBeforeValue = priorities.current
+  if (demoCardAfter.value === demoCardBeforeValue) throw new Error('快捷改优先级后选中值未变化')
   const expectedColorClass = demoCardAfter.value === 'high' ? 'text-red' : 'text-green'
   const changed = demoCardAfter.badgeClass.includes(expectedColorClass)
   if (!changed) throw new Error('优先级徽章颜色未随选择变化: ' + demoCardAfter.badgeClass)

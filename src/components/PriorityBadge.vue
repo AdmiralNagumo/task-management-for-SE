@@ -14,6 +14,13 @@ const styles = {
   low: 'bg-green-100 text-green-800 ring-green-300 dark:bg-green-500/15 dark:text-green-300 dark:ring-green-500/30',
 }
 
+// 下拉选项本身也使用对应颜色：高=红、中=黄、低=绿
+const optionStyles = {
+  high: 'text-red-700 dark:text-red-300',
+  medium: 'text-yellow-700 dark:text-yellow-300',
+  low: 'text-green-700 dark:text-green-300',
+}
+
 const selectClass = computed(
   () =>
     'rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ' + styles[props.modelValue],
@@ -29,7 +36,7 @@ const selectClass = computed(
     aria-label="优先级"
     @change="emit('update:modelValue', $event.target.value)"
   >
-    <option v-for="priority in PRIORITIES" :key="priority" :value="priority">
+    <option v-for="priority in PRIORITIES" :key="priority" :value="priority" :class="optionStyles[priority]">
       {{ PRIORITY_LABELS[priority] }}
     </option>
   </select>

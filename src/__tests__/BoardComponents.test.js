@@ -24,7 +24,7 @@ describe('KanbanBoard', () => {
   it('渲染任务并按状态展示标题与数量', () => {
     const tasks = [makeTask({ title: '任务A' }), makeTask({ id: 't2', title: '任务B', priority: 'high' })]
     const wrapper = mount(KanbanBoard, {
-      props: { status: 'todo', tasks, dragOver: false, editingTask: null },
+      props: { status: 'todo', tasks, dragOver: false },
       global: { stubs: { Teleport: true } },
     })
     expect(wrapper.text()).toContain('待办')
@@ -35,7 +35,7 @@ describe('KanbanBoard', () => {
 
   it('拖拽经过时发出 dragover，放置时发出 drop 事件', async () => {
     const wrapper = mount(KanbanBoard, {
-      props: { status: 'doing', tasks: [], dragOver: false, editingTask: null },
+      props: { status: 'doing', tasks: [], dragOver: false },
       global: { stubs: { Teleport: true } },
     })
     const section = wrapper.find('section')
@@ -51,6 +51,20 @@ describe('KanbanBoard', () => {
   })
 })
 
+describe('PriorityBadge 下拉选项颜色', () => {
+  it('同一下拉框内三个选项使用红黄绿三种不同颜色', async () => {
+    const PriorityBadge = (await import('../components/PriorityBadge.vue')).default
+    const wrapper = mount(PriorityBadge, { props: { modelValue: 'high' } })
+    const options = wrapper.findAll('option')
+    expect(options).toHaveLength(3)
+    const classes = options.map((option) => option.classes())
+    expect(classes[0]).toEqual(expect.arrayContaining(['text-red-700']))
+    expect(classes[1]).toEqual(expect.arrayContaining(['text-yellow-700']))
+    expect(classes[2]).toEqual(expect.arrayContaining(['text-green-700']))
+    const set = new Set(classes.map((c) => c.join(' ')))
+    expect(set.size).toBe(3)
+  })
+})
 describe('TaskCard 快捷改优先级', () => {
   it('点击优先级下拉发出带 patch 的 edit 事件（不打开编辑详情）', async () => {
     const { mount } = await import('@vue/test-utils')
