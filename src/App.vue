@@ -94,8 +94,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 text-gray-900 transition-colors dark:bg-gray-950 dark:text-gray-100">
-    <header class="sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
+  <div class="app-root min-h-screen bg-gray-100 text-gray-900 transition-colors dark:bg-gray-950 dark:text-gray-100">
+    <header class="sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-gray-900/70">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
         <div>
           <h1 class="text-lg font-bold">任务管理</h1>
@@ -135,7 +135,7 @@ onMounted(() => {
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
         @click.self="closeModal"
       >
-        <div class="w-full max-w-md rounded-xl bg-white p-5 shadow-xl dark:bg-gray-800">
+        <div class="w-full max-w-md rounded-xl bg-white p-5 shadow-xl dark:bg-gray-900 dark:ring-1 dark:ring-gray-700/60">
           <h2 class="mb-4 text-base font-semibold">
             {{ editing && editing.task ? '编辑任务' : '新建任务' }}
           </h2>

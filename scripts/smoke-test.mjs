@@ -105,6 +105,19 @@ try {
   await page.reload({ waitUntil: 'networkidle0' })
   const darkPersisted = await page.evaluate(() => document.documentElement.classList.contains('dark'))
   if (!darkPersisted) throw new Error('深色模式选择未持久化')
+  // 深色背景优化：应用根元素带 app-root 渐变背景，且标头/卡片使用半透明深色
+  const darkBg = await page.evaluate(() => {
+    const root = document.querySelector('.app-root')
+    const header = document.querySelector('header')
+    if (!root) throw new Error('未找到 app-root')
+    return {
+      hasRootClass: root.classList.contains('app-root'),
+      headerIsTranslucent: header.className.includes('dark:bg-gray-900/70'),
+    }
+  })
+  if (!darkBg.hasRootClass || !darkBg.headerIsTranslucent) {
+    throw new Error('深色背景优化未生效: ' + JSON.stringify(darkBg))
+  }
 
   // 5) 刷新后数据仍在（持久化）
   const persistedText = await page.$eval('section[aria-label="完成"]', (el) => el.textContent)

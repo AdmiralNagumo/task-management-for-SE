@@ -21,7 +21,7 @@ const cardClass = computed(() =>
   [
     'group rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition',
     'hover:shadow-md hover:-translate-y-0.5',
-    'dark:border-gray-700 dark:bg-gray-800',
+    'dark:border-gray-700/80 dark:bg-gray-800/80',
     priorityBorder[props.task.priority],
     'cursor-grab active:cursor-grabbing',
     props.dragging ? 'opacity-50 ring-2 ring-indigo-300 dark:ring-indigo-500/60' : 'opacity-100',
@@ -67,7 +67,7 @@ function toggleMenu() {
         <div class="relative">
           <button
             type="button"
-            class="flex h-6 w-6 items-center justify-center rounded text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+            class="flex h-6 w-6 items-center justify-center rounded text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700/70 dark:hover:text-gray-200"
             title="更多操作"
             aria-label="更多操作"
             @click.stop="toggleMenu"
@@ -76,12 +76,12 @@ function toggleMenu() {
           </button>
           <div
             v-if="menuOpen"
-            class="absolute right-0 top-7 z-10 w-32 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-600 dark:bg-gray-800"
+            class="absolute right-0 top-7 z-10 w-32 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-600/70 dark:bg-gray-800 dark:shadow-black/40"
             @click.stop
           >
             <button
               type="button"
-              class="block w-full px-3 py-1.5 text-left text-sm text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+              class="block w-full px-3 py-1.5 text-left text-sm text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700/70"
               @click="emit('edit', { task })"
             >
               编辑

@@ -40,7 +40,7 @@ function cancel() {
         v-model="form.title"
         type="text"
         placeholder="任务标题"
-        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-indigo-500/40"
+        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:focus:ring-indigo-500/40"
         @keyup.enter="submit"
       />
     </div>
@@ -52,7 +52,7 @@ function cancel() {
         v-model="form.description"
         rows="3"
         placeholder="补充说明…"
-        class="w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-indigo-500/40"
+        class="w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:focus:ring-indigo-500/40"
       ></textarea>
     </div>
 
@@ -70,7 +70,7 @@ function cancel() {
         <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">状态</label>
         <select
           v-model="form.status"
-          class="w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+          class="w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 outline-none dark:border-gray-600/70 dark:bg-gray-900 dark:text-gray-100"
         >
           <option v-for="status in STATUSES" :key="status" :value="status">
             {{ STATUS_LABELS[status] }}

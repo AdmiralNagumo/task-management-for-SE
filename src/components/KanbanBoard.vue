@@ -20,8 +20,8 @@ const headerStyles = {
 const columnClass = computed(() =>
   [
     'flex min-h-[320px] w-full flex-1 flex-col gap-3 rounded-xl border p-3 transition',
-    'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50',
-    props.dragOver ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-500/10' : '',
+    'border-gray-200 bg-gray-50 dark:border-gray-700/70 dark:bg-gray-800/40',
+    props.dragOver ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-400/70 dark:bg-indigo-500/15' : '',
   ].join(' '),
 )
 
@@ -56,7 +56,7 @@ function onDrop(event) {
           }"
         ></span>
         {{ STATUS_LABELS[status] }}
-        <span class="rounded-full bg-white/70 px-1.5 py-0.5 text-xs font-normal text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+        <span class="rounded-full bg-white/70 px-1.5 py-0.5 text-xs font-normal text-gray-500 dark:bg-white/10 dark:text-gray-300">
           {{ tasks.length }}
         </span>
       </h2>
